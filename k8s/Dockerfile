@@ -1,9 +1,14 @@
 FROM node:22 as builder
 
 WORKDIR /app
+# 复制依赖文件（利用 Docker 缓存层）
+COPY package.json yarn.lock ./
 
-# 4. 安装依赖（--frozen-lockfile 保证版本一致性）
-RUN yarn install 
+# 安装依赖
+RUN yarn install --frozen-lockfile
+
+# 复制源代码
+COPY . .
 
 # 6. 执行构建
 RUN yarn run build:prod
