@@ -185,14 +185,13 @@ function App() {
           >
             <Button
               w="220px"
-              h="52px"
-              borderRadius="12px"
+              h="48px"
+              borderRadius="8px"
               bg="linear-gradient(90deg,#7B3FF2,#D93DFF)"
-              color="white"
-              _hover={{
-                opacity: 0.9,
-              }}
+              color="#F8F7FA"
               onClick={handleRefresh}
+              fontSize="16px"
+              fontWeight="500"
             >
               Refresh
             </Button>
