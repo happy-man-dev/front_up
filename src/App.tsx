@@ -33,7 +33,7 @@ function App() {
           },
         })
         // 接口请求成功，跳转（地址待填写）
-        // window.location.href = ''
+        window.location.href = import.meta.env.VITE_APP_URL
       } catch {
         console.log('服务器维护中，停留在当前页面')
       }
@@ -67,7 +67,7 @@ function App() {
       alignItems="center"
       justifyContent="center"
       px={6}
-      py="100px"
+      py="50px"
     >
       <Container maxW="1200px">
         <Box>
@@ -178,7 +178,7 @@ function App() {
 
           {/* Button */}
           <Flex
-            mt="80px"
+            mt="20px"
             direction="column"
             align="center"
             justify="center"

@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-upgrade
+  labels:
+    app: web-upgrade
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-upgrade
+  template:
+    metadata:
+      labels:
+        app: web-upgrade
+    spec:
+      # ECR 私有镜像拉取 Secret（需提前创建：kubectl create secret docker-registry ecr-secret ...）
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: web-upgrade
+          image: 565715329048.dkr.ecr.ap-northeast-1.amazonaws.com/forx/web-upgrade:v1.0.0
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: healthz
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /nginx-healthz
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /nginx-healthz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 10m
+              memory: 100Mi
+      # 保证两个副本分布在不同节点
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: web-upgrade
+                topologyKey: kubernetes.io/hostname
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-upgrade
+  labels:
+    app: web-upgrade
+spec:
+  type: ClusterIP
+  selector:
+    app: web-upgrade
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-upgrade
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-upgrade
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
