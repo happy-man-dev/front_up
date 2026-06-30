@@ -1,5 +1,7 @@
 FROM node:22 as builder
 
+ARG BUILD_CMD=build:prod
+
 WORKDIR /app
 # 复制依赖文件（利用 Docker 缓存层）
 COPY package.json yarn.lock ./
@@ -10,8 +12,8 @@ RUN yarn install --frozen-lockfile
 # 复制源代码
 COPY . .
 
-# 6. 执行构建
-RUN yarn run build:prod
+# 执行构建
+RUN yarn run ${BUILD_CMD}
 
 FROM cgr.dev/chainguard/nginx:latest
 COPY nginx.conf /etc/nginx/nginx.conf
