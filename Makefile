@@ -8,5 +8,5 @@ image-uat:
 
 image-prod:
 	echo $(VERSION)
-	docker build --build-arg BUILD_CMD=build:prod -t $(IMAGE_PATH):$(VERSION) .
+	docker build --build-arg BUILD_CMD=build:prod -t $(IMAGE_PATH):$(VERSION)-prod .
 
